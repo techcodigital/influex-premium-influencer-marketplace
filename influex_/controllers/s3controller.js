@@ -25,44 +25,31 @@ import { compressVideo } from "../utils/compress.js";
 import Video from "../models/video.js";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
+// 
 export const uploadPost = async (req, res) => {
   try {
-    const files = req.files; // 👈 videos (max 2)
+    const files = req.files;
     const uploadedVideoUrls = [];
 
-    // 🎥 VIDEO UPLOAD + COMPRESS
     if (files && files.length > 0) {
       for (let file of files) {
         const inputPath = file.path;
-        const outputPath = `uploads/compressed-${file.filename}.mp4`;
+        const outputPath = `public/uploads/videos/compressed-${file.filename}.mp4`;
 
         await compressVideo(inputPath, outputPath);
 
-        const fileStream = fs.createReadStream(outputPath);
+        // ❌ S3 hata diya
+        // ✅ direct URL bana
+        const url = `https://api.collabzy.in/uploads/videos/${path.basename(outputPath)}`;
 
-        const key = `videos/${Date.now()}-${file.originalname}`;
-
-        const command = new PutObjectCommand({
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: key,
-          Body: fileStream,
-          ContentType: "video/mp4",
-        });
-
-        await s3.send(command);
-
-        const url = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`;
         uploadedVideoUrls.push(url);
 
-        fs.unlinkSync(inputPath);
-        fs.unlinkSync(outputPath);
+        fs.unlinkSync(inputPath); // original delete
       }
     }
 
-    // 🖼️ IMAGES (frontend se direct URLs aayengi)
     const imageUrls = req.body.images || [];
 
-    // 🔥 FINAL SAVE (combined post)
     const newPost = await Video.create({
       user: req.user._id,
       urls: uploadedVideoUrls,
@@ -80,6 +67,60 @@ export const uploadPost = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+//   try {
+//     const files = req.files; // 👈 videos (max 2)
+//     const uploadedVideoUrls = [];
+
+//     // 🎥 VIDEO UPLOAD + COMPRESS
+//     if (files && files.length > 0) {
+//       for (let file of files) {
+//         const inputPath = file.path;
+//         const outputPath = `uploads/compressed-${file.filename}.mp4`;
+
+//         await compressVideo(inputPath, outputPath);
+
+//         const fileStream = fs.createReadStream(outputPath);
+
+//         const key = `videos/${Date.now()}-${file.originalname}`;
+
+//         const command = new PutObjectCommand({
+//           Bucket: process.env.AWS_BUCKET_NAME,
+//           Key: key,
+//           Body: fileStream,
+//           ContentType: "video/mp4",
+//         });
+
+//         await s3.send(command);
+
+//         const url = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+//         uploadedVideoUrls.push(url);
+
+//         fs.unlinkSync(inputPath);
+//         fs.unlinkSync(outputPath);
+//       }
+//     }
+
+//     // 🖼️ IMAGES (frontend se direct URLs aayengi)
+//     const imageUrls = req.body.images || [];
+
+//     // 🔥 FINAL SAVE (combined post)
+//     const newPost = await Video.create({
+//       user: req.user._id,
+//       urls: uploadedVideoUrls,
+//       images: imageUrls,
+//       caption: req.body.caption || "",
+//     });
+
+//     res.json({
+//       message: "Post created successfully",
+//       data: newPost,
+//     });
+
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Video.find()
