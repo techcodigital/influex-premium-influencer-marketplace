@@ -99,7 +99,7 @@ app.use("/api/invite",inviteRoutes)
 app.use("/api/payment",paymentsRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/dispute", disputeRoutes);
-app.use("/uploads", express.static("public/uploads"));
+app.use("/uploads", express.static("uploads"));
 // MongoDB connect + server start
 const PORT = process.env.PORT || 7000;
 
