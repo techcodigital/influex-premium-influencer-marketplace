@@ -1,27 +1,43 @@
 import multer from "multer";
 import fs from "fs";
+import path from "path";
 
-const uploadPath = "public/uploads/profiles";
-fs.mkdirSync(uploadPath, { recursive: true });
+// 📁 folders
+const paths = {
+  profile: "uploads/profiles",
+  image: "uploads/images",
+  video: "uploads/videos",
+};
+
+// ensure all folders exist
+Object.values(paths).forEach((p) => {
+  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+});
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadPath);
+    if (file.mimetype.startsWith("image/")) {
+      if (req.baseUrl.includes("profile")) {
+        cb(null, paths.profile);
+      } else {
+        cb(null, paths.image);
+      }
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, paths.video);
+    }
   },
+
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + "-" + file.originalname;
     cb(null, uniqueName);
   },
 });
 
-const uploadImage = multer({
+const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    file.mimetype.startsWith("image/")
-      ? cb(null, true)
-      : cb(new Error("Only images allowed"));
+  limits: {
+    fileSize: 100 * 1024 * 1024,
   },
 });
 
-export default uploadImage;
+export default upload;
