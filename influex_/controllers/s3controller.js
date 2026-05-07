@@ -27,11 +27,12 @@ export const uploadPost = async (req, res) => {
       caption: req.body.caption || "",
     });
 
-    res.json({
-      success: true,
-      message: "Post created successfully",
-      data: newPost,
-    });
+  res.json({
+        success: true,
+        data: {
+         url,
+        },
+        });
 
   } catch (err) {
     console.log(err);
