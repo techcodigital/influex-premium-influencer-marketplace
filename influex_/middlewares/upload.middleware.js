@@ -4,9 +4,9 @@ import path from "path";
 
 // 📁 folders
 const paths = {
-  profile: "uploads/profiles",
-  image: "uploads/images",
-  video: "uploads/videos",
+  profile: "public/uploads/profiles",
+  image: "public/uploads/images",
+  video: "public/uploads/videos",
 };
 
 // ensure all folders exist
