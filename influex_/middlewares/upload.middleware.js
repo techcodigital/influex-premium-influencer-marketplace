@@ -2,46 +2,29 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 
-// 📁 folders (ABSOLUTE SAFE PATH)
-const BASE_DIR = path.join(process.cwd(), "public/uploads");
-
+// 📁 folders
 const paths = {
-  profile: path.join(BASE_DIR, "profiles"),
-  image: path.join(BASE_DIR, "images"),
-  video: path.join(BASE_DIR, "videos"),
+  profile: "public/uploads/profiles",
+  image: "public/uploads/images",
+  video: "public/uploads/videos",
 };
 
-// ensure all folders exist
-Object.values(paths).forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+// ensure folders exist
+Object.values(paths).forEach((p) => {
+  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
 });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let folder = paths.image; // default
-
-    // image/video detect
     if (file.mimetype.startsWith("image/")) {
-      // safer check than baseUrl
-      if (req.path.includes("profile")) {
-        folder = paths.profile;
-      } else {
-        folder = paths.image;
-      }
-    } 
-    else if (file.mimetype.startsWith("video/")) {
-      folder = paths.video;
+      cb(null, paths.image);
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, paths.video);
     }
-
-    cb(null, folder);
   },
 
   filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() + "-" + Math.random().toString(36).substring(2, 10) + "-" + file.originalname;
-
+    const uniqueName = Date.now() + "-" + file.originalname;
     cb(null, uniqueName);
   },
 });
