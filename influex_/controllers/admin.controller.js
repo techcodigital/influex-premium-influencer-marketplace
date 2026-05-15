@@ -212,33 +212,24 @@ export const getInfluencers = async(req,res)=>{
  res.json(influencers)
 }
 
-// export const getBrands = async(req,res)=>{
-//  const brands = await User.find({role:"brand"})
-//  res.json(brands)
-// }
 export const getBrands = async (req, res) => {
   try {
-
-    const profiles = await Profile.find({ role: "brand" })
-      .populate("user", "email role isActive");
+    const profiles = await Profile.find({ role: "brand" });
 
     const data = profiles.map(p => ({
-      _id: p.user?._id,
-      email: p.user?.email,
-      role: p.user?.role,
-      isActive: p.user?.isActive,
-
-      name: p.name,
-      bio: p.bio,
-      location: p.location,
-      followers: p.followers,
-      categories: p.categories,
-      subCategories: p.subCategories,
-      platform: p.platform,
-      companyName: p.companyName,
-      website: p.website,
-      phone: p.phone,
-      profileImage: p.profileImage
+      _id: p._id,
+      userId: p.user || null,
+      name: p.name || "",
+      bio: p.bio || "",
+      location: p.location || "",
+      followers: p.followers || 0,
+      categories: p.categories || [],
+      subCategories: p.subCategories || [],
+      platform: p.platform || "",
+      companyName: p.companyName || "",
+      website: p.website || "",
+      phone: p.phone || "",
+      profileImage: p.profileImage || ""
     }));
 
     res.json({
