@@ -212,10 +212,47 @@ export const getInfluencers = async(req,res)=>{
  res.json(influencers)
 }
 
-export const getBrands = async(req,res)=>{
- const brands = await User.find({role:"brand"})
- res.json(brands)
-}
+// export const getBrands = async(req,res)=>{
+//  const brands = await User.find({role:"brand"})
+//  res.json(brands)
+// }
+export const getBrands = async (req, res) => {
+  try {
+
+    const profiles = await Profile.find({ role: "brand" })
+      .populate("user", "email role isActive");
+
+    const data = profiles.map(p => ({
+      _id: p.user?._id,
+      email: p.user?.email,
+      role: p.user?.role,
+      isActive: p.user?.isActive,
+
+      name: p.name,
+      bio: p.bio,
+      location: p.location,
+      followers: p.followers,
+      categories: p.categories,
+      subCategories: p.subCategories,
+      platform: p.platform,
+      companyName: p.companyName,
+      website: p.website,
+      phone: p.phone,
+      profileImage: p.profileImage
+    }));
+
+    res.json({
+      success: true,
+      brands: data
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 export const pauseCampaign = async(req,res)=>{
  const {id} = req.params
 
