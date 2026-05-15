@@ -376,7 +376,9 @@ export const getAllUsersWithProfile = async (req, res) => {
       categories: p.categories,
       platform: p.platform,
       companyName: p.companyName,
-      profileImage: p.profileImage
+      profileImage: p.profileImage,
+     phone: p.phone,
+     subCategories: p.subCategories
     }));
 
     res.json({
