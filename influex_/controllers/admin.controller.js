@@ -55,7 +55,7 @@ export const getAllUsers = async(req,res)=>{
 
  const users = await User.find().select("-passwordHash") .populate({
         path: "profile",
-        select: "name bio location profileImage followers categories platform companyName"
+        select: "name bio location profileImage followers categories  subCategories platform companyName"
       });
        
 
