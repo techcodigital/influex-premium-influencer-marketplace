@@ -55,7 +55,7 @@ export const getAllUsers = async(req,res)=>{
 
  const users = await User.find().select("-passwordHash") .populate({
         path: "profile",
-        select: "name bio location profileImage followers categories phone subCategories platform companyName"
+        select: "name bio location profileImage followers categories phone subCategories platform companyName website"
       });
        
 
@@ -415,7 +415,8 @@ export const getAllUsersWithProfile = async (req, res) => {
       companyName: p.companyName,
       profileImage: p.profileImage,
       phone: p.phone,
-      subCategories: p.subCategories
+      subCategories: p.subCategories,
+      website: p.website
     }));
 
     res.json({
