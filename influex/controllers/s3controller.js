@@ -15,25 +15,32 @@ export const uploadPost = async (req, res) => {
     for (let file of files) {
       const inputPath = file.path;
 
-      // 🎥 VIDEO
-      if (file.mimetype.startsWith("video/")) {
-        const outputPath = `uploads/compressed/${file.filename}.mp4`;
+     
+if (file.mimetype.startsWith("video/")) {
 
-        await compressVideo(inputPath, outputPath);
+  const compressedDir = path.join(
+    process.cwd(),
+    "public/uploads/compressed"
+  );
 
-        const url = `${BASE_URL}/uploads/compressed/${file.filename}.mp4`;
-        videoUrls.push(url);
+  if (!fs.existsSync(compressedDir)) {
+    fs.mkdirSync(compressedDir, { recursive: true });
+  }
 
-        if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-      }
+  const fileName = `${path.parse(file.filename).name}.mp4`;
 
-      // 🖼 IMAGE
-      if (file.mimetype.startsWith("image/")) {
-        const url = `${BASE_URL}/uploads/images/${file.filename}`;
-        imageUrls.push(url);
-      }
-    }
+  const outputPath = path.join(compressedDir, fileName);
 
+  await compressVideo(inputPath, outputPath);
+
+  const url = `${BASE_URL}/uploads/compressed/${fileName}`;
+
+  videoUrls.push(url);
+
+  if (fs.existsSync(inputPath)) {
+    fs.unlinkSync(inputPath);
+  }
+}
     const newPost = await Video.create({
       user: req.user._id,
       urls: videoUrls,
