@@ -1,177 +1,43 @@
-import fs from "fs";
-import path from "path";
-import { compressVideo } from "../utils/compress.js";
-import Video from "../models/video.js";
+for (let file of files) {
+  const inputPath = file.path;
 
-const BASE_URL = "https://api.collabzy.in"; // 🔥 change if needed
+  // VIDEO
+  if (file.mimetype.startsWith("video/")) {
 
-export const uploadPost = async (req, res) => {
-  try {
-    const files = req.files || [];
+    const compressedDir = path.join(
+      process.cwd(),
+      "public/uploads/compressed"
+    );
 
-    const videoUrls = [];
-    const imageUrls = [];
-
-    for (let file of files) {
-      const inputPath = file.path;
-
-     
-if (file.mimetype.startsWith("video/")) {
-
-  const compressedDir = path.join(
-    process.cwd(),
-    "public/uploads/compressed"
-  );
-
-  if (!fs.existsSync(compressedDir)) {
-    fs.mkdirSync(compressedDir, { recursive: true });
-  }
-
-  const fileName = `${path.parse(file.filename).name}.mp4`;
-
-  const outputPath = path.join(compressedDir, fileName);
-
-  await compressVideo(inputPath, outputPath);
-
-  const url = `${BASE_URL}/uploads/compressed/${fileName}`;
-
-  videoUrls.push(url);
-
-  if (fs.existsSync(inputPath)) {
-    fs.unlinkSync(inputPath);
-  }
-}
-    const newPost = await Video.create({
-      user: req.user._id,
-      urls: videoUrls,
-      images: imageUrls,
-      caption: req.body.caption || "",
-    });
-
-     res.json({ success: true, data: newPost });
-    
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err.message });
-  }
-};
-export const deletePost = async (req, res) => {
-  try {
-    const post = await Video.findById(req.params.id);
-
-    if (!post) return res.status(404).json({ message: "Not found" });
-
-    if (post.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized" });
+    if (!fs.existsSync(compressedDir)) {
+      fs.mkdirSync(compressedDir, { recursive: true });
     }
 
-    const deleteFile = (url) => {
-      const filePath = "." + url.replace("https://api.collabzy.in", "");
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    };
+    const fileName = `${path.parse(file.filename).name}.mp4`;
 
-    post.urls.forEach(deleteFile);
-    post.images.forEach(deleteFile);
+    const outputPath = path.join(compressedDir, fileName);
 
-    await post.deleteOne();
+    await compressVideo(inputPath, outputPath);
 
-    res.json({ success: true });
+    const url = `${BASE_URL}/uploads/compressed/${fileName}`;
 
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-export const uploadProfileImage = async (req, res) => {
-  try {
-    const file = req.file;
+    videoUrls.push(url);
 
-    const url = `https://api.collabzy.in/uploads/profiles/${file.filename}`;
-
-    req.user.profileImage = url;
-    await req.user.save();
-
-    res.json({ success: true, url });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const getAllPosts = async (req, res) => {
-  try {
-    const posts = await Video.find()
-      .populate("user", "name profileImage")
-      .sort({ createdAt: -1 });
-
-    const formatted = posts.map(post => ({
-      ...post._doc,
-      media: [
-        ...(post.images || []),
-        ...(post.urls || [])
-      ]
-    }));
-
-    res.json({ success: true, data: formatted });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-// GET /posts/:userId
-export const getPostsByUser = async (req, res) => {
-  try {
-    const posts = await Video.find({ user: req.params.userId })
-      .populate("user", "name profileImage")
-      .sort({ createdAt: -1 });
-
-    const formatted = posts.map(post => ({
-      ...post._doc,
-      media: [
-        ...(post.images || []),
-        ...(post.urls || [])
-      ]
-    }));
-
-    res.json({
-      success: true,
-      data: formatted
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const updatePost = async (req, res) => {
-  try {
-    const post = await Video.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: "Not found" });
-
-    const BASE_URL = "https://api.collabzy.in";
-
-    let uploadedVideoUrls = [...(post.urls || [])];
-
-    if (req.files && req.files.length > 0) {
-      for (let file of req.files) {
-        const url = `${BASE_URL}/uploads/videos/${file.filename}`;
-        uploadedVideoUrls.push(url);
-      }
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
     }
-
-    post.caption = req.body.caption || post.caption;
-    post.images = req.body.images || post.images;
-    post.urls = uploadedVideoUrls;
-
-    await post.save();
-
-    res.json({
-      success: true,
-      message: "Updated successfully",
-      data: post,
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err.message });
   }
-};
+
+  // IMAGE
+  if (file.mimetype.startsWith("image/")) {
+    const url = `${BASE_URL}/uploads/images/${file.filename}`;
+    imageUrls.push(url);
+  }
+} // ✅ ye missing tha
+
+const newPost = await Video.create({
+  user: req.user._id,
+  urls: videoUrls,
+  images: imageUrls,
+  caption: req.body.caption || "",
+});
