@@ -1,43 +1,264 @@
-for (let file of files) {
-  const inputPath = file.path;
+import fs from "fs";
+import path from "path";
+import { compressVideo } from "../utils/compress.js";
+import Video from "../models/video.js";
 
-  // VIDEO
-  if (file.mimetype.startsWith("video/")) {
+const BASE_URL = "https://api.collabzy.in";
 
-    const compressedDir = path.join(
-      process.cwd(),
-      "public/uploads/compressed"
-    );
+export const uploadPost = async (req, res) => {
+  try {
+    const files = req.files || [];
 
-    if (!fs.existsSync(compressedDir)) {
-      fs.mkdirSync(compressedDir, { recursive: true });
+    const videoUrls = [];
+    const imageUrls = [];
+
+    for (let file of files) {
+      const inputPath = file.path;
+
+      // 🎥 VIDEO
+      if (file.mimetype.startsWith("video/")) {
+
+        const compressedDir = path.join(
+          process.cwd(),
+          "public/uploads/compressed"
+        );
+
+        // create compressed folder if not exists
+        if (!fs.existsSync(compressedDir)) {
+          fs.mkdirSync(compressedDir, { recursive: true });
+        }
+
+        const fileName = `${path.parse(file.filename).name}.mp4`;
+
+        const outputPath = path.join(
+          compressedDir,
+          fileName
+        );
+
+        // compress
+        await compressVideo(inputPath, outputPath);
+
+        // final url
+        const url = `${BASE_URL}/uploads/compressed/${fileName}`;
+
+        videoUrls.push(url);
+
+        // delete original uploaded file
+        if (fs.existsSync(inputPath)) {
+          fs.unlinkSync(inputPath);
+        }
+      }
+
+      // 🖼 IMAGE
+      if (file.mimetype.startsWith("image/")) {
+        const url = `${BASE_URL}/uploads/images/${file.filename}`;
+        imageUrls.push(url);
+      }
     }
 
-    const fileName = `${path.parse(file.filename).name}.mp4`;
+    const newPost = await Video.create({
+      user: req.user._id,
+      urls: videoUrls,
+      images: imageUrls,
+      caption: req.body.caption || "",
+    });
 
-    const outputPath = path.join(compressedDir, fileName);
+    res.json({
+      success: true,
+      data: newPost,
+    });
 
-    await compressVideo(inputPath, outputPath);
+  } catch (err) {
+    console.log(err);
 
-    const url = `${BASE_URL}/uploads/compressed/${fileName}`;
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
 
-    videoUrls.push(url);
+export const deletePost = async (req, res) => {
+  try {
+    const post = await Video.findById(req.params.id);
 
-    if (fs.existsSync(inputPath)) {
-      fs.unlinkSync(inputPath);
+    if (!post) {
+      return res.status(404).json({
+        message: "Not found",
+      });
     }
-  }
 
-  // IMAGE
-  if (file.mimetype.startsWith("image/")) {
-    const url = `${BASE_URL}/uploads/images/${file.filename}`;
-    imageUrls.push(url);
-  }
-} // ✅ ye missing tha
+    if (post.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
 
-const newPost = await Video.create({
-  user: req.user._id,
-  urls: videoUrls,
-  images: imageUrls,
-  caption: req.body.caption || "",
-});
+    const deleteFile = (url) => {
+      const filePath = "." + url.replace(BASE_URL, "");
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    };
+
+    post.urls.forEach(deleteFile);
+    post.images.forEach(deleteFile);
+
+    await post.deleteOne();
+
+    res.json({
+      success: true,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const file = req.file;
+
+    const url = `${BASE_URL}/uploads/profiles/${file.filename}`;
+
+    req.user.profileImage = url;
+
+    await req.user.save();
+
+    res.json({
+      success: true,
+      url,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Video.find()
+      .populate("user", "name profileImage")
+      .sort({ createdAt: -1 });
+
+    const formatted = posts.map((post) => ({
+      ...post._doc,
+      media: [
+        ...(post.images || []),
+        ...(post.urls || []),
+      ],
+    }));
+
+    res.json({
+      success: true,
+      data: formatted,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
+
+export const getPostsByUser = async (req, res) => {
+  try {
+    const posts = await Video.find({
+      user: req.params.userId,
+    })
+      .populate("user", "name profileImage")
+      .sort({ createdAt: -1 });
+
+    const formatted = posts.map((post) => ({
+      ...post._doc,
+      media: [
+        ...(post.images || []),
+        ...(post.urls || []),
+      ],
+    }));
+
+    res.json({
+      success: true,
+      data: formatted,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
+
+export const updatePost = async (req, res) => {
+  try {
+    const post = await Video.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Not found",
+      });
+    }
+
+    let uploadedVideoUrls = [...(post.urls || [])];
+
+    if (req.files && req.files.length > 0) {
+
+      for (let file of req.files) {
+
+        if (file.mimetype.startsWith("video/")) {
+
+          const compressedDir = path.join(
+            process.cwd(),
+            "public/uploads/compressed"
+          );
+
+          if (!fs.existsSync(compressedDir)) {
+            fs.mkdirSync(compressedDir, {
+              recursive: true,
+            });
+          }
+
+          const fileName = `${path.parse(file.filename).name}.mp4`;
+
+          const outputPath = path.join(
+            compressedDir,
+            fileName
+          );
+
+          await compressVideo(file.path, outputPath);
+
+          const url = `${BASE_URL}/uploads/compressed/${fileName}`;
+
+          uploadedVideoUrls.push(url);
+
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        }
+      }
+    }
+
+    post.caption = req.body.caption || post.caption;
+    post.images = req.body.images || post.images;
+    post.urls = uploadedVideoUrls;
+
+    await post.save();
+
+    res.json({
+      success: true,
+      message: "Updated successfully",
+      data: post,
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+};
