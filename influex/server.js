@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 
 dotenv.config({
-  path: "/home/ubuntu/influex-premium-influencer-marketplace/influex_/.env",
+  path: "/home/ubuntu/influex-premium-influencer-marketplace/influex/.env",
 });
 console.log("ENV FILE LOADED:", process.env.EMAIL_USER);
 import path from "path";
