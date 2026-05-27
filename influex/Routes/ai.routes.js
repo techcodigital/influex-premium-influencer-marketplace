@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/generate-bio", auth, async (req, res) => {
   try {
-    const { name, category, subcategory, followers } = req.body;
+    const { name, categories,subCategories, followers } = req.body;
 
     if (!name || !category) {
       return res.status(400).json({
@@ -16,9 +16,9 @@ router.post("/generate-bio", auth, async (req, res) => {
 
     const bio = await generateInfluencerBio(
       name,
-      category,
-      subcategory,
-      followers
+     categories,
+     subCategories,
+     followers
     );
 
     res.status(200).json({
