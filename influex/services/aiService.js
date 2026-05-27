@@ -6,8 +6,8 @@ const openai = new OpenAI({
 
 export const generateInfluencerBio = async (
   name,
-  category,
-  subcategory,
+  categories,
+  subCategories,
   followers
 ) => {
   const response = await openai.chat.completions.create({
