@@ -8,7 +8,7 @@ router.post("/generate-bio", auth, async (req, res) => {
   try {
     const { name, categories,subCategories, followers } = req.body;
 
-    if (!name || !category) {
+    if (!name || !categories) {
       return res.status(400).json({
         message: "Name and category are required",
       });
