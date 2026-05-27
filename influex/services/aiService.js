@@ -22,8 +22,12 @@ Name: ${name}
 Category: ${categories}
 Subcategory: ${subCategories}
 Followers: ${followers}
-
-Keep it under 100 words, engaging and professional.`,
+Requirements:
+- Under 80 words
+- Modern and engaging tone
+- Include niche expertise
+- Sound professional and brand-friendly
+- Add emojis if suitable`,
       },
     ],
     max_tokens: 200,
