@@ -1,5 +1,5 @@
 import express from "express";
-import { generateInfluencerBio } from "../services/aiService.js";
+import { generateInfluencerBio,suggestCampaignTitles } from "../services/aiService.js";
 import auth from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -32,5 +32,49 @@ router.post("/generate-bio", auth, async (req, res) => {
     });
   }
 });
+router.post(
+  "/campaign-titles",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const {
+        categories,
+        subCategories,
+        city,
+        budget,
+      } = req.body;
+
+      if (
+        !categories ||
+        !subCategories ||
+        !budget
+      ) {
+        return res.status(400).json({
+          message:
+            "Categories, subCategories and budget are required",
+        });
+      }
+
+      const titles = await suggestCampaignTitles(
+        categories,
+        subCategories,
+        city,
+        budget
+      );
+
+      res.status(200).json({
+        success: true,
+        titles,
+      });
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).json({
+        message: "AI error",
+        error: error.message,
+      });
+    }
+  }
+);
 
 export default router;
