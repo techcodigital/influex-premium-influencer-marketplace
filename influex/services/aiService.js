@@ -32,38 +32,45 @@ Requirements:
     ],
     max_tokens: 200,
   });
+   return response.choices[0].message.content;
+};
+
 export const suggestCampaignTitles = async (
-  brand,
-  product,
-  goal
+  categories,
+  subCategories,
+  city,
+  budget
 ) => {
   const response = await openai.chat.completions.create({
     model: "openai/gpt-oss-20b:free",
+
     messages: [
       {
         role: "user",
-        content: `Suggest 5 premium and catchy influencer campaign titles.
 
-Brand: ${brand}
-Product: ${product}
-Goal: ${goal}
+        content: `Suggest 5 premium influencer campaign titles.
+
+Categories: ${categories?.join(", ")}
+Subcategories: ${subCategories?.join(", ")}
+City: ${city}
+Budget: ₹${budget}
 
 Requirements:
-- Modern and trendy
-- Brand collaboration style
+- Modern and catchy
+- Professional brand campaign style
 - Short and engaging
-- Suitable for social media campaigns
+- Social media friendly
+- Influencer marketplace vibe
 
-Return ONLY a valid JSON array like:
+Return ONLY valid JSON array like:
 ["title1","title2","title3","title4","title5"]`,
       },
     ],
+
     max_tokens: 200,
   });
 
   const content = response.choices[0].message.content;
 
   return JSON.parse(content);
-};
-  return response.choices[0].message.content;
 };
