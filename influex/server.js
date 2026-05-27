@@ -52,7 +52,7 @@ import disputeRoutes from "./Routes/dispute.routes.js";
 import Conversation from "./models/Conversation.js";
 import Notification from "./models/notification.js";
 import { detectContactInfo } from "./utils/contactDetector.js";
-import paymentsRoutes from "./Routes/payments.routes.js":
+import paymentsRoutes from "./Routes/payments.routes.js";
 import aiRoutes from "./Routes/ai.routes.js";
 
 
