@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY, 
 });
 
 export const generateInfluencerBio = async (
@@ -11,7 +12,7 @@ export const generateInfluencerBio = async (
   followers
 ) => {
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "meta-llama/llama-3-8b-instruct:free",
     messages: [
       {
         role: "user",
