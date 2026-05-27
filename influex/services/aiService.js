@@ -12,7 +12,7 @@ export const generateInfluencerBio = async (
   followers
 ) => {
   const response = await openai.chat.completions.create({
-    model: "google/gemini-flash-1.5-8b",
+    model: "openai/gpt-oss-20b:free",
     messages: [
       {
         role: "user",
