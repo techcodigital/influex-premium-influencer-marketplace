@@ -32,6 +32,38 @@ Requirements:
     ],
     max_tokens: 200,
   });
+export const suggestCampaignTitles = async (
+  brand,
+  product,
+  goal
+) => {
+  const response = await openai.chat.completions.create({
+    model: "openai/gpt-oss-20b:free",
+    messages: [
+      {
+        role: "user",
+        content: `Suggest 5 premium and catchy influencer campaign titles.
 
+Brand: ${brand}
+Product: ${product}
+Goal: ${goal}
+
+Requirements:
+- Modern and trendy
+- Brand collaboration style
+- Short and engaging
+- Suitable for social media campaigns
+
+Return ONLY a valid JSON array like:
+["title1","title2","title3","title4","title5"]`,
+      },
+    ],
+    max_tokens: 200,
+  });
+
+  const content = response.choices[0].message.content;
+
+  return JSON.parse(content);
+};
   return response.choices[0].message.content;
 };
