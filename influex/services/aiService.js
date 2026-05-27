@@ -12,7 +12,7 @@ export const generateInfluencerBio = async (
   followers
 ) => {
   const response = await openai.chat.completions.create({
-    model: "meta-llama/llama-3-8b-instruct:free",
+    model: "model: "deepseek/deepseek-chat-v3-0324:free",
     messages: [
       {
         role: "user",
