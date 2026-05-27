@@ -34,7 +34,7 @@ router.post("/generate-bio", auth, async (req, res) => {
 });
 router.post(
   "/campaign-titles",
-  verifyToken,
+  auth,
   async (req, res) => {
     try {
       const {
