@@ -42,6 +42,15 @@ export const suggestCampaignTitles = async (
   budget,
   title
 ) => {
+
+  const categoryText = Array.isArray(categories)
+    ? categories.join(", ")
+    : categories;
+
+  const subCategoryText = Array.isArray(subCategories)
+    ? subCategories.join(", ")
+    : subCategories;
+
   const response = await openai.chat.completions.create({
     model: "openai/gpt-oss-20b:free",
 
@@ -51,11 +60,11 @@ export const suggestCampaignTitles = async (
 
         content: `Suggest 5 premium influencer campaign titles.
 
-Categories: ${categories?.join(", ")}
-Subcategories: ${subCategories?.join(", ")}
+Categories: ${categoryText}
+Subcategories: ${subCategoryText}
 City: ${city}
 Budget: ₹${budget}
-title: ${title}
+Title: ${title}
 
 Requirements:
 - Modern and catchy
