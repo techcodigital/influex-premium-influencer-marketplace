@@ -39,7 +39,8 @@ export const suggestCampaignTitles = async (
   categories,
   subCategories,
   city,
-  budget
+  budget,
+  title
 ) => {
   const response = await openai.chat.completions.create({
     model: "openai/gpt-oss-20b:free",
@@ -54,16 +55,20 @@ Categories: ${categories?.join(", ")}
 Subcategories: ${subCategories?.join(", ")}
 City: ${city}
 Budget: ₹${budget}
+title: ${title}
 
 Requirements:
 - Modern and catchy
-- Professional brand campaign style
-- Short and engaging
-- Social media friendly
+- Professional campaign description style
+- Short, engaging, and premium tone
 - Influencer marketplace vibe
+- Suitable for brand collaborations
+- Social media friendly
+- Mention creator growth, brand deals, or paid promotions
+- Keep it concise and attractive
 
 Return ONLY valid JSON array like:
-["title1","title2","title3","title4","title5"]`,
+["description1","description2","description3","description4","description5"]`,
       },
     ],
 
