@@ -39,6 +39,7 @@ router.post(
     try {
       const {
         categories,
+        title,
         subCategories,
         city,
         budget,
@@ -47,7 +48,7 @@ router.post(
       if (
         !categories ||
         !subCategories ||
-        !budget
+        !budget || !title
       ) {
         return res.status(400).json({
           message:
@@ -59,7 +60,8 @@ router.post(
         categories,
         subCategories,
         city,
-        budget
+        budget,
+        title
       );
 
       res.status(200).json({
