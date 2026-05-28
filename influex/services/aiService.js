@@ -58,7 +58,7 @@ export const suggestCampaignTitles = async (
       {
         role: "user",
 
-        content: `Suggest 5 premium influencer campaign titles.
+        content: `Suggest 5 premium influencer campaign descriptions.
 
 Categories: ${categoryText}
 Subcategories: ${subCategoryText}
