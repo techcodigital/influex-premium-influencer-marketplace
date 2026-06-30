@@ -265,3 +265,28 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Delete profile
+    await Profile.findOneAndDelete({ user: userId });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Account deleted successfully."
+    });
+
+  } catch (error) {
+    console.error("Delete Account Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete account."
+    });
+  }
+};
