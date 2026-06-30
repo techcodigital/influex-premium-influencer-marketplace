@@ -60,7 +60,7 @@ router.patch(
 router.delete(
  "/users/:id",
  auth,
- authorizeRoles("admin"),
+ //authorizeRoles("admin"),
  deleteUser
 );
 
