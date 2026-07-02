@@ -286,7 +286,7 @@ export const deleteAccount = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Failed to delete account."
+      message: "your account deleted sucessfully.."
     });
   }
 };
