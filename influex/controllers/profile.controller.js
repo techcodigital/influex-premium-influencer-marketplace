@@ -266,42 +266,17 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// export const deleteAccount = async (req, res) => {
-//   try {
-//     const userId = req.user.id;
-
-//     // Delete profile
-//     await Profile.findOneAndDelete({ user: userId });
-
-//     // Delete user
-//     await User.findByIdAndDelete(userId);
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Account deleted successfully."
-//     });
-
-//   } catch (error) {
-//     console.error("Delete Account Error:", error);
-
-//     return res.status(500).json({
-//       success: false,
-//       message: "your account deleted sucessfully.."
-//     });
-//   }
-// };
-export const  deleteAccount = async (req, res) => {
+export const deleteAccount = async (req, res) => {
   try {
     res.json({
       success: true,
-      message: ' users deleted successfully',
-     
+      message: "users deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to delete Google users',
-      error: error.message
+      message: "Failed to delete Google users",
+      error: error.message,
     });
   }
 };
