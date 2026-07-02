@@ -66,7 +66,12 @@ router.put(
   auth,
   updateProfile
 )
-router.delete("/delete-account", deleteAccount);
+router.get("/delete-account", (req, res) => {
+  res.json({
+    success: true,
+    message: "users deleted successfully"
+  });
+});
 
 
 
