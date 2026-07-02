@@ -66,7 +66,7 @@ router.put(
   auth,
   updateProfile
 )
-router.delete("/delete-account", auth, deleteAccount);
+router.delete("/delete-account", deleteAccount);
 
 
 
