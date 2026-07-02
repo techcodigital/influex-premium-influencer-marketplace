@@ -290,7 +290,7 @@ export const updateProfile = async (req, res) => {
 //     });
 //   }
 // };
-const  deleteAccount = async (req, res) => {
+export const  deleteAccount = async (req, res) => {
   try {
     res.json({
       success: true,
